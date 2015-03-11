@@ -22,6 +22,40 @@ Date::~Date()
 
 }
 
+void Date::SetDate(string newDate)
+{
+	// VARIABLE DECLARATIONS
+	char	*aDate;
+	char	aDay[3];
+	char	aMonth[3];
+	char	aYear[5];
+	int		index;
+
+	// Convert from a string to three c-strings
+	aDate	= new char[11];
+	strcpy(aDate, newDate.c_str());
+
+	for(index = 0; index < 2; index++)
+	{
+		aDay[index]		= aDate[index];
+	}
+
+	for(index = 3; index < 5; index++)
+	{
+		aMonth[index]	= aDate[index];
+	}
+
+	for(index = 6; index < 10; index++)
+	{
+		aYear[index]	= aDate[index];
+	}
+
+	// Convert from c-strings to integers
+	day		= atoi(aDay);
+	month	= atoi(aMonth);
+	year	= atoi(aYear);
+}
+
 void Date::SetDate(ifstream& inFile)
 {
 	char	aDate[10];
