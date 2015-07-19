@@ -13,6 +13,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
+#include <limits>
 
 using namespace std;
 
@@ -23,7 +24,16 @@ MemberList::MemberList()
 
 MemberList::~MemberList()
 {
+	Basic* memberPtr;
 
+	memberPtr	= head;
+
+	while(memberPtr != NULL)
+	{
+		memberPtr	= memberPtr->GetNext();
+		delete head;
+		head		= memberPtr;
+	}
 }
 
 void MemberList::CreateList(ifstream &inFile)
@@ -35,84 +45,118 @@ void MemberList::CreateList(ifstream &inFile)
 	string  memberType;
 	Date	expiration;
 
-
-
-	memberPtr = new Basic;
-
 	// Loop
-	while(inFile && memberPtr != NULL)
+	while(!inFile.eof())
 	{
 		getline(inFile, name);
 		inFile >> id;
 		inFile.ignore(1000, '\n');
 		getline(inFile, memberType);
-		//expiration.SetDate(inFile);
+		expiration.SetDate(inFile);
 
 		if(memberType == "Basic")
 		{
-			memberPtr	= new Basic;
+			memberPtr = new Basic;
 		}
 		else
 		{
-			memberPtr	= new Preferred;
+			memberPtr = new Preferred;
 		}
 
-		if(memberPtr != NULL)
-		{
-			memberPtr->SetName(name);
-			memberPtr->SetId(id);
-			//memberPtr->SetExpiration(expiration);
-			memberPtr->SetNext(head);
-			head	= memberPtr;
-			memberPtr = new Basic;
-		}
+		memberPtr->SetName(name);
+		memberPtr->SetId(id);
+		memberPtr->SetExpiration(expiration);
 
-
+		memberPtr->SetNext(head);
+		head = memberPtr;
 	}
-	delete memberPtr;
-	memberPtr = NULL;
 }
 
-//	void memberList :: DeleteMember(memberInfo* head)
-//	{
-//
-//		 memberInfo* memberPtr;
-//		 memberPtr = head;
-//
-//		 if (head !=NULL )
-//		 {
-//			 memberPtr = memberPtr -> next;
-//			 head = memberPtr;
-//		 }
-//
-//		delete memberPtr;
-//
-//	}
+//Need Contingency for Three Cases
+//Removing from Head (The first item in list)
+//Removing from Middle
+//Removing from Last
+
+void MemberList::DeleteMember(Basic* deleteMember)
+{
+
+	 Basic* memberPtr;
+	 bool   found;
+
+	 memberPtr = head;
+	 found	   = false;
+
+	 if(memberPtr->GetName() == deleteMember->GetName())
+	 {
+		 head = head->GetNext();
+	 }
+	 else
+	 {
+		 while(memberPtr->GetNext() != NULL && !found)
+		 {
+			 if(memberPtr->GetNext()->GetName() == deleteMember->GetName())
+			 {
+				 memberPtr->SetNext(deleteMember->GetNext());
+				 found = true;
+			 }
+			 else
+			 {
+				 memberPtr = memberPtr->GetNext();
+			 }
+		 }
+	 }
+
+	 delete deleteMember;
+}
+
+void  MemberList::AddMember(Basic* aMember)
+{
+	aMember->SetNext(head);
+	head = aMember;
+}
 
 Basic *MemberList::SearchMember(int userId)
 {
-	Basic *memberPtr;
-	bool found;
-	int y;
+	Basic* 	memberPtr;
+	bool	found;
 
-	found = false;
-	memberPtr = head;
-	y = memberPtr->GetId();
-	cout  << y;
+	memberPtr	= head;
+	found		= false;
 
+	while(memberPtr != NULL && !found)
+	{
+		if(memberPtr->GetId() == userId)
+		{
+			found = true;
+		}
+		else
+		{
+			memberPtr	= memberPtr->GetNext();
+		}
+	}
 
-//	for(int i=0; i < 11; i++)
-//	{
-//		if (memberPtr->GetId() == userId)
-//		{
-//			cout << "test " << memberPtr->GetId() << endl;
-//			found = true;
-//		}
-//		else
-//		{
-//			memberPtr = memberPtr->GetNext();
-//		}
-//	}
+	return memberPtr;
+}
+
+Basic *MemberList::SearchMember(string aName)
+{
+	Basic* 	memberPtr;
+	bool	found;
+
+	memberPtr	= head;
+	found		= false;
+
+	while(memberPtr != NULL && !found)
+	{
+		if(memberPtr->GetName() == aName)
+		{
+			found = true;
+		}
+		else
+		{
+			memberPtr	= memberPtr->GetNext();
+		}
+	}
 
 	return memberPtr;
 }
